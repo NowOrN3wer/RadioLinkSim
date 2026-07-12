@@ -1,0 +1,71 @@
+<header class="hero">
+  <div class="hero__content">
+    <span class="eyebrow"><i class="pi pi-wifi"></i> RadioLinkSim</span>
+    <h1>Radyo link arazi profilini hesaplayın</h1>
+    <p>İki nokta arasındaki hattı haritada görün, yükselti değişimini mesafeye göre inceleyin.</p>
+  </div>
+</header>
+
+<main class="page-shell">
+  <p-card styleClass="control-card">
+    <ng-template #title>Hat koordinatları</ng-template>
+    <ng-template #subtitle>Ondalık derece biçiminde başlangıç ve bitiş noktalarını girin.</ng-template>
+
+    <form [formGroup]="form" (ngSubmit)="calculate()" class="coordinate-form">
+      <fieldset>
+        <legend><span class="point-badge point-badge--a">A</span> Başlangıç</legend>
+        <label>Enlem <p-inputnumber formControlName="latA" [minFractionDigits]="4" [maxFractionDigits]="6" /></label>
+        <label>Boylam <p-inputnumber formControlName="lonA" [minFractionDigits]="4" [maxFractionDigits]="6" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="point-badge point-badge--b">B</span> Bitiş</legend>
+        <label>Enlem <p-inputnumber formControlName="latB" [minFractionDigits]="4" [maxFractionDigits]="6" /></label>
+        <label>Boylam <p-inputnumber formControlName="lonB" [minFractionDigits]="4" [maxFractionDigits]="6" /></label>
+      </fieldset>
+
+      <label class="step-field">
+        Örnekleme aralığı (metre)
+        <p-inputnumber formControlName="stepMeters" [min]="10" [max]="5000" [showButtons]="true" [step]="100" suffix=" m" />
+      </label>
+
+      <p-button type="submit" label="Profili hesapla" icon="pi pi-chart-line" [loading]="loading()" />
+    </form>
+
+    @if (errorMessage()) {
+      <p-message severity="error" [text]="errorMessage()" styleClass="error-message" />
+    }
+  </p-card>
+
+  <section class="map-panel panel">
+    <div class="panel-heading">
+      <div><span class="section-kicker">Güzergâh</span><h2>Hat görünümü</h2></div>
+      <span class="map-legend"><b class="dot dot--a"></b>A noktası <b class="dot dot--b"></b>B noktası</span>
+    </div>
+    <div #map class="map" aria-label="A ve B noktalarının haritası"></div>
+  </section>
+
+  @if (profile(); as result) {
+    <section class="metrics" aria-label="Profil özeti">
+      <article><i class="pi pi-arrows-h"></i><div><span>Kuş uçuşu mesafe</span><strong>{{ (result.greatCircleDistanceMeters / 1000).toFixed(2) }} km</strong></div></article>
+      <article><i class="pi pi-wave-pulse"></i><div><span>Efektif mesafe</span><strong>{{ (result.effectiveDistanceMeters / 1000).toFixed(2) }} km</strong></div></article>
+      <article><i class="pi pi-map-marker"></i><div><span>Profil noktası</span><strong>{{ result.pointCount }}</strong></div></article>
+      <article><i class="pi pi-sliders-h"></i><div><span>Örnekleme</span><strong>{{ result.stepMeters }} m</strong></div></article>
+    </section>
+
+    <section class="chart-panel panel">
+      <div class="panel-heading">
+        <div><span class="section-kicker">Arazi kesiti</span><h2>Yükseklik profili</h2></div>
+      </div>
+      <div class="chart-wrap"><p-chart type="line" [data]="chartData()" [options]="chartOptions" /></div>
+    </section>
+  } @else {
+    <section class="empty-state panel">
+      <i class="pi pi-chart-line"></i>
+      <h2>Profil hesaplanmayı bekliyor</h2>
+      <p>Koordinatları kontrol edip “Profili hesapla” düğmesine basın.</p>
+    </section>
+  }
+</main>
+
+<footer>RadioLinkSim · OpenStreetMap ve Open-Elevation verileriyle</footer>

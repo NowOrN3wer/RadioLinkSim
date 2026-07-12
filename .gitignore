@@ -284,6 +284,10 @@ FakesAssemblies/
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
 node_modules/
+frontend/.angular/
+frontend/dist/
+frontend/coverage/
+open-elevation-data/
 
 # Visual Studio 6 build log
 *.plg

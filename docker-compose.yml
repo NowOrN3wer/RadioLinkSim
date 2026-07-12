@@ -1,4 +1,14 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4294:80"
+    depends_on:
+      - radiolinksim
+    restart: unless-stopped
+
   radiolinksim:
     build:
       context: .

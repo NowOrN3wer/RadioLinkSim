@@ -1,45 +1,45 @@
+using FluentValidation;
 using RadioLinkSim.Endpoints;
+using RadioLinkSim.ErrorHandling;
+using RadioLinkSim.Services;
 using Scalar.AspNetCore;
-using System.Reflection;
-
-const string CorsPolicy = "DefaultCors";
-Assembly applicationAssembly = Assembly.GetExecutingAssembly();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-string[] allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddSingleton<GeodesyService>();
+builder.Services.AddScoped<LinkProfileService>();
+
+builder.Services.AddHttpClient<IElevationProvider, OpenElevationClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["OpenElevation:BaseAddress"]
+        ?? "https://api.open-elevation.com/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(CorsPolicy, policy =>
+    options.AddDefaultPolicy(policy =>
     {
-        if (allowedOrigins.Length > 0)
-        {
-            policy.WithOrigins(allowedOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        }
-        else
-        {
-            policy.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        }
+        policy
+            .WithOrigins("http://localhost:4294")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+app.UseExceptionHandler();
+app.UseCors();
 
-
-app.MapEndpoints();
+app.MapOpenApi();
+app.MapScalarApiReference();
+app.MapLinkProfileEndpoints();
 
 await app.RunAsync();

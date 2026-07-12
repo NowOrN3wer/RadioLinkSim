@@ -1,6 +1,40 @@
-@RadioLinkSim_HostAddress = http://localhost:5120
+@RadioLinkSim_HostAddress = http://localhost:9499
 
-GET {{RadioLinkSim_HostAddress}}/weatherforecast/
+### İstanbul - Ankara bağlantı profili
+POST {{RadioLinkSim_HostAddress}}/api/link-profile
+Content-Type: application/json
 Accept: application/json
 
-###
+{
+  "latA": 41.0082,
+  "lonA": 28.9784,
+  "latB": 39.9334,
+  "lonB": 32.8597,
+  "stepMeters": 5000
+}
+
+### Kısa mesafeli bağlantı profili
+POST {{RadioLinkSim_HostAddress}}/api/link-profile
+Content-Type: application/json
+Accept: application/json
+
+{
+  "latA": 41.0256,
+  "lonA": 28.9742,
+  "latB": 41.0351,
+  "lonB": 29.0094,
+  "stepMeters": 200
+}
+
+### Geçersiz koordinat ve adım değeri - 400 Bad Request beklenir
+POST {{RadioLinkSim_HostAddress}}/api/link-profile
+Content-Type: application/json
+Accept: application/json
+
+{
+  "latA": 91,
+  "lonA": 28.9784,
+  "latB": 39.9334,
+  "lonB": 32.8597,
+  "stepMeters": 5
+}

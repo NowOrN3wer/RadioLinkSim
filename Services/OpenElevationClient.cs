@@ -1,6 +1,7 @@
 using RadioLinkSim.ErrorHandling;
 using RadioLinkSim.Models.OpenElevation;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 
 namespace RadioLinkSim.Services;
@@ -33,9 +34,16 @@ public sealed class OpenElevationClient(
         {
             try
             {
-                using var response = await httpClient.PostAsJsonAsync(
-                    "api/v1/lookup",
+                var requestJson = JsonSerializer.Serialize(
                     request,
+                    JsonSerializerOptions.Web);
+                using var requestContent = new StringContent(
+                    requestJson,
+                    Encoding.UTF8,
+                    "application/json");
+                using var response = await httpClient.PostAsync(
+                    "api/v1/lookup",
+                    requestContent,
                     cancellationToken);
 
                 if (response.IsSuccessStatusCode)
@@ -62,8 +70,10 @@ public sealed class OpenElevationClient(
 
                 if (!IsRetryableStatusCode(response.StatusCode))
                 {
+                    var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
                     throw new ElevationServiceUnavailableException(
-                        $"Open-Elevation isteği {(int)response.StatusCode} ({response.StatusCode}) durum koduyla reddedildi.");
+                        $"Open-Elevation isteği {(int)response.StatusCode} ({response.StatusCode}) durum koduyla reddedildi. " +
+                        $"Yanıt: {errorBody}");
                 }
 
                 lastException = new HttpRequestException(

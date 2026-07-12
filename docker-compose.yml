@@ -17,15 +17,5 @@ services:
       - "9499:9499"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      OpenElevation__BaseAddress: http://open-elevation:8080/
-    depends_on:
-      - open-elevation
-    restart: unless-stopped
-
-  open-elevation:
-    image: openelevation/open-elevation:latest
-    volumes:
-      - ./open-elevation-data:/code/data
-    environment:
-      PYTHONUNBUFFERED: "1"
+      OpenElevation__BaseAddress: https://api.open-elevation.com/
     restart: unless-stopped

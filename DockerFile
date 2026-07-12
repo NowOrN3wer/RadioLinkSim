@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY ["RadioLinkSim.csproj", "./"]
+RUN dotnet restore "RadioLinkSim.csproj"
+
+COPY . .
+RUN dotnet publish "RadioLinkSim.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_HTTP_PORTS=9499
+EXPOSE 9499
+ENTRYPOINT ["dotnet", "RadioLinkSim.dll"]

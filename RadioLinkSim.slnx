@@ -1,3 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorcconfig" />
+    <File Path="DockerFile" />
+  </Folder>
   <Project Path="RadioLinkSim.csproj" />
 </Solution>

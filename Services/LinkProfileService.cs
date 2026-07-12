@@ -70,9 +70,6 @@ public sealed class LinkProfileService(
         for (var index = 1; index <= fullStepCount; index++)
         {
             var distanceFromAMeters = index * request.StepMeters;
-
-            // If the distance is an exact multiple of the step, B is added once below
-            // using its original coordinates rather than a calculated approximation.
             if (distanceFromAMeters >= greatCircleDistanceMeters)
             {
                 break;
